@@ -15,15 +15,38 @@ export const promedioAnioEstreno = () => {
 * @param {number} promedio
   */
 export const pelicuasConCriticaPromedioMayorA = (promedio) => {
-    return [];
+    const criticasPorPelicula = agruparCriticasPorPelicula();
+    let peliculasConPromedioMayor = [];
+    Object.keys(criticasPorPelicula).forEach((id) => {
+        const criticaPromedio = criticasPorPelicula[id].reduce((total, calificacion) => total + calificacion.puntuacion , 0) / criticasPorPelicula[id].length;
+        if (criticaPromedio > promedio) {
+            const pelicula = basededatos.peliculas.find((pelicula) => pelicula.id == id);
+
+             peliculasConPromedioMayor.push({
+                ...pelicula,
+                criticaPromedio
+            })
+        }
+    });
+
+    return peliculasConPromedioMayor;
 };
+
+const agruparCriticasPorPelicula = () => {
+    return basededatos.calificaciones.reduce((array, item) => {
+        (array[item.pelicula] = array[item.pelicula] || []).push(item)
+        return array;
+    }, {})
+}
 
 /**
 * Devuelve la lista de peliculas de un director
 * @param {string} nombreDirector
 */
 export const peliculasDeUnDirector = (nombreDirector) => {
-    return [];
+    const director = basededatos.directores.find((director) => director.nombre === nombreDirector);
+    const peliculasPorDirector = basededatos.peliculas.filter((pelicula) => pelicula.directores.includes(director.id))
+    return peliculasPorDirector;
 };
 
 /**
@@ -31,7 +54,10 @@ export const peliculasDeUnDirector = (nombreDirector) => {
 * @param {number} peliculaId
 */
 export const promedioDeCriticaBypeliculaId = (peliculaId) => {
-    return [];
+    const calificaciones = basededatos.calificaciones.filter((calificacion) => calificacion.pelicula === peliculaId);
+    const calificacionMedia = calificaciones.reduce((total, calificacion) => total + calificacion.puntuacion, 0) / calificaciones.length;
+
+    return calificacionMedia;
 };
 
 /**
@@ -69,7 +95,15 @@ export const promedioDeCriticaBypeliculaId = (peliculaId) => {
 export const obtenerPeliculasConPuntuacionExcelente = () => {
     // Ejemplo de como accedo a datos dentro de la base de datos
     // console.log(basededatos.peliculas);
-    return [];
+    const peliculasConCalificacionExcelente = [];
+
+    basededatos.calificaciones.forEach((calificacion) => {
+        if (calificacion.puntuacion >= 9) {
+            const pelicula = basededatos.peliculas.find((pelicula) => pelicula.id === calificacion.pelicula);
+            peliculasConCalificacionExcelente.push(pelicula);
+        }
+    })
+    return peliculasConCalificacionExcelente;
 };
 
 /**
