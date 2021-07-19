@@ -154,5 +154,28 @@ export const obtenerPeliculasConPuntuacionExcelente = () => {
  * @param {string} nombrePelicula
  */
 export const expandirInformacionPelicula = (nombrePelicula) => {
-    return {};
+    const pelicula = basededatos.peliculas.find((pelicula) => pelicula.nombre === nombrePelicula);
+    const directores = pelicula.directores.map((directorId) => {
+        return basededatos.directores.find((director) => director.id === directorId);
+    });
+    pelicula.directores = directores;
+
+    const generos = pelicula.generos.map((generoId) => {
+        return basededatos.generos.find((genero) => genero.id === generoId);
+    });
+    pelicula.generos = generos;
+
+    const calificacionesPorPelicula = basededatos.calificaciones.filter((calificacion) => calificacion.pelicula === pelicula.id);
+    let criticas = [];
+
+    calificacionesPorPelicula.forEach((calificacion) => {
+        const critico = basededatos.criticos.find((critico) => critico.id === calificacion.critico);
+        criticas.push({
+            ...critico,
+            puntuacion: calificacion.puntuacion
+        })
+    })
+
+    pelicula.criticas = criticas;
+    return pelicula;
 };
